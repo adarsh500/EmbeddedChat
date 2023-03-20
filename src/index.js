@@ -18,7 +18,7 @@ export const RCComponent = ({
   width = '100%',
   height = '50vh',
   GOOGLE_CLIENT_ID,
-  host = 'http://localhost:3000',
+  host = 'http://192.168.1.7:3000',
   roomId = 'GENERAL',
   channelName,
   anonymousMode = false,
@@ -27,6 +27,11 @@ export const RCComponent = ({
   showRoles = false,
   showAvatar = false,
   enableThreads = false,
+  styles = {
+    header: {},
+    body: {},
+    text: {},
+  },
 }) => {
   const [fullScreen, setFullScreen] = useState(false);
   const setToastbarPosition = useToastStore((state) => state.setPosition);
@@ -126,9 +131,9 @@ export const RCComponent = ({
         {attachmentWindowOpen ? <AttachmentWindow /> : null}
         <Box
           width={width}
-          overflowX={'hidden'}
-          overflowY={'hidden'}
-          maxHeight={'100vh'}
+          overflowX="hidden"
+          overflowY="hidden"
+          maxHeight="100vh"
         >
           <ChatHeader
             channelName={channelName}
@@ -172,4 +177,5 @@ RCComponent.propTypes = {
   showRoles: PropTypes.bool,
   showAvatar: PropTypes.bool,
   enableThreads: PropTypes.bool,
+  styles: PropTypes.object,
 };
