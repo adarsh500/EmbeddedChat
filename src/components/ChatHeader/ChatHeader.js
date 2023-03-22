@@ -1,6 +1,7 @@
 import { ActionButton, Box, Icon, Menu } from '@rocket.chat/fuselage';
 import React, { useContext, useEffect } from 'react';
 import PropTypes from 'prop-types';
+import { useTheme } from '@emotion/react';
 import styles from './ChatHeader.module.css';
 import RCContext from '../../context/RCInstance';
 import {
@@ -14,17 +15,20 @@ import { darken, isDark, lighten } from '../../lib/color';
 import { useRCAuth4Google } from '../../hooks/useRCAuth4Google';
 import { ThreadHeader } from '../ThreadHeader';
 
-const ChatHeader = ({
-  isClosable,
-  setClosableState,
-  moreOpts,
-  fullScreen,
-  setFullScreen,
-  channelName,
-  headerColor,
-}) => {
+const ChatHeader = (props) => {
+  const {
+    isClosable,
+    setClosableState,
+    moreOpts,
+    fullScreen,
+    setFullScreen,
+    channelName,
+    headerColor,
+  } = props;
+  const theme = useTheme();
+  console.log('theme', theme);
   const computedHeaderTextColor = isDark(headerColor) ? 'white' : 'black';
-  const computedHeaderBackgroundColor = headerColor;
+  const computedHeaderBackgroundColor = theme.color.background ?? headerColor;
   const computedHeaderDescriptionColor = isDark(headerColor)
     ? 'whitesmoke'
     : 'rgba(0, 0, 0, 0.5)';

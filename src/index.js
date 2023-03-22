@@ -1,4 +1,5 @@
 import { Box } from '@rocket.chat/fuselage';
+import { ThemeProvider } from '@emotion/react';
 import React, { useEffect, useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
 import { ToastBarProvider } from '@rocket.chat/fuselage-toastbar';
@@ -11,28 +12,32 @@ import { RC_USER_ID_COOKIE, RC_USER_TOKEN_COOKIE } from './lib/constant';
 import AttachmentWindow from './components/Attachments/AttachmentWindow';
 import useAttachmentWindowStore from './store/attachmentwindow';
 
-export const RCComponent = ({
-  isClosable = false,
-  setClosableState,
-  moreOpts = false,
-  width = '100%',
-  height = '50vh',
-  GOOGLE_CLIENT_ID,
-  host = 'http://192.168.1.7:3000',
-  roomId = 'GENERAL',
-  channelName,
-  anonymousMode = false,
-  headerColor = '#fff',
-  toastBarPosition = 'bottom-end',
-  showRoles = false,
-  showAvatar = false,
-  enableThreads = false,
-  styles = {
-    header: {},
-    body: {},
-    text: {},
+const theme = {
+  color: {
+    primary: 'hotpink',
+    background: 'red',
   },
-}) => {
+};
+
+export const RCComponent = (props) => {
+  const {
+    isClosable = false,
+    setClosableState,
+    moreOpts = false,
+    width = '100%',
+    height = '50vh',
+    GOOGLE_CLIENT_ID,
+    host = 'http://192.168.1.7:3000',
+    roomId = 'GENERAL',
+    channelName,
+    anonymousMode = false,
+    headerColor = '#fff',
+    toastBarPosition = 'bottom-end',
+    showRoles = false,
+    showAvatar = false,
+    enableThreads = false,
+    styles = {},
+  } = props;
   const [fullScreen, setFullScreen] = useState(false);
   const setToastbarPosition = useToastStore((state) => state.setPosition);
   const setShowAvatar = useUserStore((state) => state.setShowAvatar);
@@ -126,38 +131,40 @@ export const RCComponent = ({
   );
 
   return (
-    <ToastBarProvider>
-      <RCInstanceProvider value={{ RCInstance, ECOptions }}>
-        {attachmentWindowOpen ? <AttachmentWindow /> : null}
-        <Box
-          width={width}
-          overflowX="hidden"
-          overflowY="hidden"
-          maxHeight="100vh"
-        >
-          <ChatHeader
-            channelName={channelName}
-            isClosable={isClosable}
-            setClosableState={setClosableState}
-            moreOpts={moreOpts}
-            fullScreen={fullScreen}
-            setFullScreen={setFullScreen}
-            headerColor={headerColor}
-          />
-          {isUserAuthenticated || anonymousMode ? (
-            <ChatBody
-              height={!fullScreen ? height : '88vh'}
-              anonymousMode={anonymousMode}
-              showRoles={showRoles}
-              GOOGLE_CLIENT_ID={GOOGLE_CLIENT_ID}
+    <ThemeProvider theme={theme}>
+      <ToastBarProvider>
+        <RCInstanceProvider value={{ RCInstance, ECOptions }}>
+          {attachmentWindowOpen ? <AttachmentWindow /> : null}
+          <Box
+            width={width}
+            overflowX="hidden"
+            overflowY="hidden"
+            maxHeight="100vh"
+          >
+            <ChatHeader
+              channelName={channelName}
+              isClosable={isClosable}
+              setClosableState={setClosableState}
+              moreOpts={moreOpts}
+              fullScreen={fullScreen}
+              setFullScreen={setFullScreen}
+              headerColor={headerColor}
             />
-          ) : (
-            <Home height={!fullScreen ? height : '88vh'} />
-          )}
-          <ChatInput />
-        </Box>
-      </RCInstanceProvider>
-    </ToastBarProvider>
+            {isUserAuthenticated || anonymousMode ? (
+              <ChatBody
+                height={!fullScreen ? height : '88vh'}
+                anonymousMode={anonymousMode}
+                showRoles={showRoles}
+                GOOGLE_CLIENT_ID={GOOGLE_CLIENT_ID}
+              />
+            ) : (
+              <Home height={!fullScreen ? height : '88vh'} />
+            )}
+            <ChatInput />
+          </Box>
+        </RCInstanceProvider>
+      </ToastBarProvider>
+    </ThemeProvider>
   );
 };
 
