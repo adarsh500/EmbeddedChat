@@ -39,12 +39,26 @@ export const RCComponent = (props) => {
     styles = {},
   } = props;
   const [fullScreen, setFullScreen] = useState(false);
+  const [embeddedProps, setEmbeddedProps] = useState({});
   const setToastbarPosition = useToastStore((state) => state.setPosition);
   const setShowAvatar = useUserStore((state) => state.setShowAvatar);
   useEffect(() => {
     setToastbarPosition(toastBarPosition);
     setShowAvatar(showAvatar);
   }, []);
+
+  function getSyncScriptParams() {
+    const scripts = document.getElementsByTagName('script');
+    const lastScript = scripts[scripts.length - 1];
+    const scriptName = lastScript;
+    setEmbeddedProps({
+      width: scriptName.getAttribute('width'),
+      height: scriptName.getAttribute('height'),
+    });
+
+    console.log('width is', scriptName.getAttribute('width'));
+    console.log('height is', scriptName.getAttribute('height'));
+  }
 
   if (isClosable && !setClosableState) {
     throw Error(
@@ -74,9 +88,11 @@ export const RCComponent = (props) => {
   useEffect(() => {
     const cookiesPresent =
       Cookies.get(RC_USER_TOKEN_COOKIE) && Cookies.get(RC_USER_ID_COOKIE);
+
     if (cookiesPresent) {
       setIsUserAuthenticated(true);
     }
+    getSyncScriptParams();
   }, []);
 
   const authenticatedUserUsername = useUserStore((state) => state.username);
