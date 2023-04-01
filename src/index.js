@@ -4,6 +4,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
 import { ToastBarProvider } from '@rocket.chat/fuselage-toastbar';
 import Cookies from 'js-cookie';
+import { createRoot } from 'react-dom/client';
 import { ChatBody, ChatHeader, ChatInput, Home } from './components';
 import RocketChatInstance from './lib/api';
 import { RCInstanceProvider } from './context/RCInstance';
@@ -202,3 +203,7 @@ RCComponent.propTypes = {
   enableThreads: PropTypes.bool,
   styles: PropTypes.object,
 };
+
+const domNode = document.getElementById('ec');
+const root = createRoot(domNode);
+root.render(<RCComponent />);
