@@ -18,7 +18,7 @@ export const RCComponent = ({
   width = '100%',
   height = '50vh',
   GOOGLE_CLIENT_ID,
-  host = 'http://localhost:3000',
+  host = 'http://192.168.1.8:3000',
   roomId = 'GENERAL',
   channelName,
   anonymousMode = false,

@@ -40,7 +40,7 @@ const useUserStore = create((set) => ({
   showAvatar: false,
   setShowAvatar: (showAvatar) => set(() => ({ showAvatar })),
   roles: {},
-  setRoles: (roles) => set((state) => ({ ...state, roles })),
+  setRoles: (roles) => set(() => ({ roles })),
 }));
 
 export default useUserStore;

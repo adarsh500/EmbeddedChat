@@ -17,6 +17,7 @@ import { searchToMentionUser } from '../../lib/searchToMentionUser';
 import TypingUsers from '../TypingUsers';
 import createPendingMessage from '../../lib/createPendingMessage';
 import { parseEmoji } from '../../lib/emoji';
+import SlashCommands from '../SlashCommands';
 
 const ChatInput = () => {
   const { RCInstance, ECOptions } = useContext(RCContext);
@@ -24,7 +25,8 @@ const ChatInput = () => {
   const typingRef = useRef();
   const messageRef = useRef();
   const [disableButton, setDisableButton] = useState(true);
-
+  const [displaySlashCommands, setDisplaySlashCommands] = useState(false);
+  const [commandsList, setCommandsList] = useState([]);
   const roomMembers = mentionmemberStore((state) => state.roomMembers);
   const setRoomMembers = mentionmemberStore((state) => state.setRoomMembers);
 
@@ -33,6 +35,9 @@ const ChatInput = () => {
   const [mentionIndex, setmentionIndex] = useState(-1);
   const [startReading, setStartReading] = useState(false);
   const showMembersList = mentionmemberStore((state) => state.showMembersList);
+  const roles = useUserStore((state) => state.roles);
+
+  console.log('roles', roles);
   const setshowMembersList = mentionmemberStore(
     (state) => state.toggleShowMembers
   );
@@ -80,6 +85,20 @@ const ChatInput = () => {
     setIsLoginModalOpen(true);
   };
 
+  const getSlashCommands = async () => {
+    const { commands } = await RCInstance.getSlashCommands();
+    setCommandsList(commands);
+    console.log(commands);
+  };
+
+  const executeSlashCommand = async (inputs) => {
+    const req = await RCInstance.executeSlashCommand(inputs);
+  };
+
+  useEffect(() => {
+    getSlashCommands();
+  }, [displaySlashCommands]);
+
   const sendMessage = async () => {
     messageRef.current.style.height = '44px';
     const message = messageRef.current.value.trimEnd();
@@ -91,8 +110,23 @@ const ChatInput = () => {
       return;
     }
 
+    messageRef.current.value = '';
+
     if (!editMessage.msg) {
-      messageRef.current.value = '';
+      if (message.startsWith('/')) {
+        const [command, params] = message.split(' ');
+        const inputs = {
+          command: command.slice(1),
+          roomId: process.env.REACT_APP_RC_ROOM_ID || 'GENERAL',
+          params,
+        };
+        if (ECOptions.enableThreads && threadId) {
+          inputs.tmid = threadId;
+        }
+        executeSlashCommand(inputs);
+        return;
+      }
+
       const pendingMessage = createPendingMessage(message, user);
       if (ECOptions.enableThreads && threadId) {
         pendingMessage.tmid = threadId;
@@ -143,6 +177,7 @@ const ChatInput = () => {
     toggle();
     setData(event.target.files[0]);
   };
+
   const getAllChannelMembers = async () => {
     try {
       const channelMembers = await RCInstance.getChannelMembers();
@@ -194,6 +229,11 @@ const ChatInput = () => {
     }
   };
 
+  const handleSelect = (option) => {
+    setDisplaySlashCommands(false);
+    messageRef.current.value = `/${option[1]} `;
+  };
+
   return (
     <>
       <Box marginInlineStart="x20">
@@ -208,6 +248,9 @@ const ChatInput = () => {
         ) : (
           <></>
         )}
+        {displaySlashCommands ? (
+          <SlashCommands commands={commandsList} handleSelect={handleSelect} />
+        ) : null}
         <Box className={styles.container}>
           <textarea
             rows={1}
@@ -216,6 +259,10 @@ const ChatInput = () => {
             className={styles.textInput}
             onChange={(e) => {
               messageRef.current.value = parseEmoji(e.target.value);
+
+              if (!messageRef.current.value.trim().length) {
+                setDisplaySlashCommands(false);
+              }
 
               if (e.code === 'Enter') {
                 messageRef.current.value += '\n';
@@ -243,6 +290,10 @@ const ChatInput = () => {
             }}
             onBlur={sendTypingStop}
             onKeyDown={(e) => {
+              if (e.code === 'Slash') {
+                console.log('pressed');
+                setDisplaySlashCommands(true);
+              }
               if (e.shiftKey && e.keyCode === 13) {
                 // new line with shift enter. do nothing.
                 return;
@@ -295,7 +346,6 @@ const ChatInput = () => {
                 )}@${selectedMember}`;
 
                 setshowMembersList(false);
-
                 setStartReading(false);
                 setFilteredMembers([]);
                 setmentionIndex(-1);

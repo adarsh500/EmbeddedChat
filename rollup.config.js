@@ -26,6 +26,13 @@ export default [
         sourcemap: true,
         plugins: [env === 'production' && terser()],
       },
+      {
+        name: 'embeddedchat',
+        file: packageJson.umd,
+        format: 'umd',
+        sourcemap: true,
+        plugins: [env === 'production' && terser()],
+      },
     ],
     plugins: [
       resolve({ browser: true }),

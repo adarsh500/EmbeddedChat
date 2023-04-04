@@ -745,6 +745,41 @@ export default class RocketChatInstance {
     }
   }
 
+  async getSlashCommands() {
+    try {
+      const response = await fetch(`${this.host}/api/v1/commands.list`, {
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Auth-Token': Cookies.get('rc_token'),
+          'X-User-Id': Cookies.get('rc_uid'),
+        },
+        method: 'GET',
+      });
+
+      return await response.json();
+    } catch (e) {
+      console.error(e.message);
+    }
+  }
+
+  async executeSlashCommand(inputs) {
+    try {
+      const response = await fetch(`${this.host}/api/v1/commands.run`, {
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Auth-Token': Cookies.get('rc_token'),
+          'X-User-Id': Cookies.get('rc_uid'),
+        },
+        method: 'POST',
+        body: JSON.stringify(inputs),
+      });
+
+      return await response.json();
+    } catch (e) {
+      console.error(e.message);
+    }
+  }
+
   async getSearchMessages(text) {
     try {
       const response = await fetch(
